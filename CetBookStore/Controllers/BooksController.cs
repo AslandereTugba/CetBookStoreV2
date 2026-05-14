@@ -108,12 +108,9 @@ namespace CetBookStore.Controllers
             return View(book);
         }
         [Authorize]
-        // POST: Books/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Author,Publisher,PageCount,Price,IsInSale,PreviousPrice,PublicationDate,CreatedDate,CategoryId")] Book book)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Author,Publisher,PageCount,Price,IsInSale,PreviousPrice,PublicationDate,CreatedDate,CategoryId,ImageFile")] Book book)
         {
             if (id != book.Id)
             {
@@ -124,8 +121,32 @@ namespace CetBookStore.Controllers
             {
                 try
                 {
+                    var existing = await _context.Books.FindAsync(id);
+                    if (existing == null)
+                        return NotFound();
+
+                    if (book.ImageFile != null)
+                    {
+                        try
+                        {
+                            _imageService.DeleteImage(existing.ImageUrl);
+                            book.ImageUrl = _imageService.SaveImage(book.ImageFile);
+                        }
+                        catch (Exception ex)
+                        {
+                            ModelState.AddModelError("ImageFile", ex.Message);
+                            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", book.CategoryId);
+                            return View(book);
+                        }
+                    }
+                    else
+                    {
+                        book.ImageUrl = existing.ImageUrl;
+                    }
+
                     _context.Update(book);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -138,7 +159,6 @@ namespace CetBookStore.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", book.CategoryId);
             return View(book);
