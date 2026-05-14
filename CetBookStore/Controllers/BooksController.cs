@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CetBookStore.Data;
 using CetBookStore.Models;
+using CetBookStore.Services;
 using Microsoft.AspNetCore.Authorization;
 
 namespace CetBookStore.Controllers
@@ -15,11 +16,13 @@ namespace CetBookStore.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _hostEnvironment;
+        private readonly ImageService _imageService;
 
-        public BooksController(ApplicationDbContext context, IWebHostEnvironment hostEnvironment)
+        public BooksController(ApplicationDbContext context, IWebHostEnvironment hostEnvironment, ImageService imageService)
         {
             _context = context;
             _hostEnvironment = hostEnvironment;
+            _imageService = imageService;
         }
 
         // GET: Books
