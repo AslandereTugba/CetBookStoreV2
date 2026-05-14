@@ -68,26 +68,24 @@ namespace CetBookStore.Controllers
         {
             if (ModelState.IsValid)
             {
-
                 if (book.ImageFile != null)
                 {
-
-                    var fileExtension = Path.GetExtension(book.ImageFile.FileName);
-                    var newFileName = Guid.NewGuid().ToString("N") + fileExtension;
-
-                    book.ImageFile.OpenReadStream().CopyTo(
-                        new FileStream(Path.Combine(_hostEnvironment.WebRootPath,
-                        "images", newFileName),
-                        FileMode.Create));
-                    book.ImageUrl = newFileName;  
-                    _context.Add(book);
-                     await _context.SaveChangesAsync();
-                     return RedirectToAction(nameof(Index));
-                } else                 {
-                    ModelState.AddModelError("ImageFile", "Please upload an image.");
-
+                    try
+                    {
+                        book.ImageUrl = _imageService.SaveImage(book.ImageFile);
+                        _context.Add(book);
+                        await _context.SaveChangesAsync();
+                        return RedirectToAction(nameof(Index));
+                    }
+                    catch (Exception ex)
+                    {
+                        ModelState.AddModelError("ImageFile", ex.Message);
+                    }
                 }
-              
+                else
+                {
+                    ModelState.AddModelError("ImageFile", "Resim seçiniz");
+                }
             }
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", book.CategoryId);
             return View(book);
