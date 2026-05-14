@@ -1,5 +1,6 @@
 using CetBookStore.Data;
 using CetBookStore.Models;
+using CetBookStore.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,6 +23,7 @@ namespace CetBookStore
                 
                 )
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+            builder.Services.AddScoped<ImageService>();
             builder.Services.AddControllersWithViews();
 
             var app = builder.Build();

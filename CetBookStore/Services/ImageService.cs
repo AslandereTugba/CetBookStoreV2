@@ -1,5 +1,5 @@
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace CetBookStore.Services
 {
@@ -42,13 +42,15 @@ namespace CetBookStore.Services
 
         private void ResizeImage(string imagePath)
         {
-            using (var image = Image.Load(imagePath))
+            using (var image = new Bitmap(imagePath))
             {
                 if (image.Width > MAX_WIDTH)
                 {
                     int newHeight = (int)(image.Height * (MAX_WIDTH / (double)image.Width));
-                    image.Mutate(x => x.Resize(MAX_WIDTH, newHeight));
-                    image.Save(imagePath);
+                    using (var resized = new Bitmap(image, new Size(MAX_WIDTH, newHeight)))
+                    {
+                        resized.Save(imagePath);
+                    }
                 }
             }
         }
